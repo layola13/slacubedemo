@@ -41,7 +41,7 @@ The browser page is `index.html`: two cubes (velocities 0.02 / 0.05
 units/frame), a `requestAnimationFrame` loop that ticks each world once per
 frame and copies ECS positions into `mesh.position`, a HUD (frame, ECS tick
 counters, ECS x per cube), and a Reset button that recreates the worlds.
-Serve with `scripts/serve.ts` (Bun, port 43110, web root `/content` but
+Serve with `scripts/serve.ts` (Bun, port 43111 (43110 is taken by the Colab infra cxu serve; do not use it), web root `/content` but
 exposing only `/slaengine/*`, `/three.js/*`, `/build/*`; `/` maps to the
 hello cube page).
 

@@ -10,7 +10,7 @@
 // resolving, so the page works whether or not the tunnel strips its prefix.
 import { join } from "node:path";
 
-const PORT = 43110;
+const PORT = 43111;
 const MAP: Array<[string, string]> = [
   ["/slaengine/", "/content/slaengine/"],
   ["/three.js/", "/content/three.js/"],
