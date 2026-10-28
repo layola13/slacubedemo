@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>slaengine hello cube</title>
+<style>
+  body { margin: 0; overflow: hidden; background: #111; color: #eee; font-family: monospace; }
+  #hud { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 10px 14px; border-radius: 6px; line-height: 1.6; z-index: 10; }
+  #reset { margin-top: 6px; padding: 4px 12px; cursor: pointer; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "/three.js/build/three.module.js",
+    "three/addons/": "/three.js/examples/jsm/"
+  }
+}
+</script>
+<!-- CDN alternative for three@0.186.0 (if the local /three.js tree is unavailable):
+     "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js" -->
+</head>
+<body>
+<div id="hud">loading…</div>
+<script type="module">
+import * as THREE from "three";
+import * as hello from "/slaengine/build/hello_cube.mjs";
+
+const hud = document.getElementById("hud");
+const cube_new = hello.sla__cube_new || hello.cube_new;
+const cube_tick = hello.sla__cube_tick || hello.cube_tick;
+const cube_x = hello.sla__cube_x || hello.cube_x;
+const cube_y = hello.sla__cube_y || hello.cube_y;
+const cube_z = hello.sla__cube_z || hello.cube_z;
+const cube_ticks = hello.sla__cube_ticks || hello.cube_ticks;
+for (const [name, fn] of [["cube_new", cube_new], ["cube_tick", cube_tick], ["cube_x", cube_x], ["cube_y", cube_y], ["cube_z", cube_z], ["cube_ticks", cube_ticks]]) {
+  if (typeof fn !== "function") hud.textContent = "MISSING EXPORT " + name;
+}
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 8);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const geo = new THREE.BoxGeometry(1, 1, 1);
+const meshA = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+const meshB = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xff5500 }));
+scene.add(meshA, meshB);
+
+let frame = 0;
+let worlds = null;
+function resetWorlds() {
+  worlds = [
+    { label: "cube A (0.02)", world: cube_new(0.02, 0, 0), mesh: meshA },
+    { label: "cube B (0.05)", world: cube_new(0.05, 0, 0), mesh: meshB },
+  ];
+  frame = 0;
+  for (const e of worlds) e.mesh.position.set(0, 0, 0);
+}
+resetWorlds();
+
+const resetBtn = document.createElement("button");
+resetBtn.id = "reset";
+resetBtn.textContent = "Reset";
+resetBtn.onclick = resetWorlds;
+hud.after(resetBtn);
+
+function animate() {
+  requestAnimationFrame(animate);
+  frame++;
+  const lines = ["frame " + frame];
+  for (const e of worlds) {
+    e.world = cube_tick(e.world);
+    // Positions come ONLY from the ECS module — never hardcoded here.
+    e.mesh.position.set(cube_x(e.world), cube_y(e.world), cube_z(e.world));
+    lines.push(e.label + " ticks=" + cube_ticks(e.world) + " x=" + cube_x(e.world).toFixed(3));
+  }
+  hud.innerHTML = lines.join("<br>");
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

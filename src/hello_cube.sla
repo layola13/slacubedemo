@@ -1,0 +1,63 @@
+@import "../../sla_ecs/lib/world_dynamic.sla"
+
+struct CubePos { x: f64, y: f64, z: f64 }
+struct CubeVel { x: f64, y: f64, z: f64 }
+struct CubeTime { tick: i32 }
+struct CubeEvt { amount: i32 }
+
+fn cube_time_default() -> CubeTime { return CubeTime { tick: 0 }; }
+fn cube_evt_default() -> CubeEvt { return CubeEvt { amount: 0 }; }
+
+fn cube_world_new() -> DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt> {
+    return dynamic_world_new<CubePos, CubeVel, CubeTime, CubeEvt>(cube_time_default(), cube_evt_default());
+}
+
+fn cube_movement_system(world: DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt>) -> DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt> {
+    let w1 = dynamic_world_increment_tick<CubePos, CubeVel, CubeTime, CubeEvt>(world);
+    let t = dynamic_world_get_resource<CubePos, CubeVel, CubeTime, CubeEvt>(w1);
+    let w2 = dynamic_world_insert_resource<CubePos, CubeVel, CubeTime, CubeEvt>(w1, CubeTime { tick: t.tick + 1 });
+    let q = dynamic_world_query_a_b<CubePos, CubeVel, CubeTime, CubeEvt>(w2);
+    let i: i64 = 0;
+    while i < (len(q.items) as i64) {
+        let item = q.items[i];
+        let moved = CubePos { x: item.a.x + item.b.x, y: item.a.y + item.b.y, z: item.a.z + item.b.z };
+        w2 = dynamic_world_pair_write_a<CubePos, CubeVel, CubeTime, CubeEvt>(w2, item, moved);
+        i = i + 1;
+    }
+    return w2;
+}
+
+fn cube_new(vx: f64, vy: f64, vz: f64) -> DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt> {
+    let w = cube_world_new();
+    let (w1, entity) = dynamic_world_spawn<CubePos, CubeVel, CubeTime, CubeEvt>(w);
+    let w2 = dynamic_world_insert_a<CubePos, CubeVel, CubeTime, CubeEvt>(w1, entity, CubePos { x: 0.0, y: 0.0, z: 0.0 });
+    let w3 = dynamic_world_insert_b<CubePos, CubeVel, CubeTime, CubeEvt>(w2, entity, CubeVel { x: vx, y: vy, z: vz });
+    let w4 = dynamic_world_insert_resource<CubePos, CubeVel, CubeTime, CubeEvt>(w3, CubeTime { tick: 0 });
+    return w4;
+}
+
+fn cube_tick(world: DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt>) -> DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt> {
+    return cube_movement_system(world);
+}
+
+fn cube_x(world: DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt>) -> f64 {
+    let pos = dynamic_world_get_a<CubePos, CubeVel, CubeTime, CubeEvt>(world, entity_new(1, 0));
+    return pos.x;
+}
+
+fn cube_y(world: DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt>) -> f64 {
+    let pos = dynamic_world_get_a<CubePos, CubeVel, CubeTime, CubeEvt>(world, entity_new(1, 0));
+    return pos.y;
+}
+
+fn cube_z(world: DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt>) -> f64 {
+    let pos = dynamic_world_get_a<CubePos, CubeVel, CubeTime, CubeEvt>(world, entity_new(1, 0));
+    return pos.z;
+}
+
+fn cube_ticks(world: DynamicWorld<CubePos, CubeVel, CubeTime, CubeEvt>) -> i32 {
+    let t = dynamic_world_get_resource<CubePos, CubeVel, CubeTime, CubeEvt>(world);
+    return t.tick;
+}
+
+fn main() -> i32 { return 0; }
