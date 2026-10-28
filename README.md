@@ -1,7 +1,10 @@
-# slaengine — sla_ecs + three.js + SA JS target
+# slacubedemo — hello cube demo (SLA + sla_ecs + three.js)
 
-A minimal game engine: **sla_ecs** (ECS game logic, written in SLA) +
-**three.js** (rendering) + the **SA JS target** (`sa build-js`).
+A DEMO TEST, not an engine (yet): **sla_ecs** (ECS game logic, written in SLA) +
+**three.js** (rendering) + the **SA JS target** (`sa build-js`) drive a cube
+(two cubes in the browser page) to prove a minimal SLA program can drive
+three.js rendering. This is the rebuilt demo: node-verified (T1–T4, ALL
+CHECKS PASSED), served via Bun + the dev.cxu.lol tunnel.
 
 ## Architecture
 
@@ -47,9 +50,10 @@ hello cube page).
 
 ## Deploy
 
-Primary binding is a **Cloudflare tunnel** (quick tunnel if no named-tunnel
-config exists on the box); the `dev.cxu.lol/get.sh` tunnel is the fallback
-if Cloudflare binding fails outright. The public URL lives only while the
+Primary binding is the **dev.cxu.lol tunnel** (`get.sh`, frp client,
+name `slaengine-hello-cube`, upstream 127.0.0.1:43111). A Cloudflare quick
+tunnel was tried first and is edge-blocked (HTTP 403 from Cloudflare edge),
+so it is not used. The public URL lives only while the
 Colab machine and both processes (Bun serve + tunnel) stay up; Colab can
 shut down at any time.
 
